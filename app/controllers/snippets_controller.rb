@@ -34,12 +34,10 @@ class SnippetsController < ApplicationController
   # POST /snippets.json
   def create
     @snippet = Snippet.new(snippet_params)
-    uri = URI.parse('http://pygments.appspot.com/')
-    request = Net::HTTP.post_form(uri, {'lang' => @snippet.language,'code' => @snippet.plain_code})
-    @snippet.update_attribute(:highlighted_code, request.body)
 
     respond_to do |format|
       if @snippet.save
+        Resque.enqueue(SnippetHighlighter, @snippet.id)
         format.html { redirect_to @snippet, notice: 'Snippet was successfully created.' }
         format.json { render json: @snippet, status: :created }
       else
