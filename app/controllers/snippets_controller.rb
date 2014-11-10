@@ -4,7 +4,7 @@ class SnippetsController < ApplicationController
   # GET /snippets
   # GET /snippets.json
   def index
-    @snippets = Snippet.all
+    @snippets = Snippet.all.decorate
 
     respond_to do |format|
       format.html # index.html.erb
@@ -23,7 +23,7 @@ class SnippetsController < ApplicationController
 
   # GET /snippets/new
   def new
-    @snippet = Snippet.new
+    @snippet = Snippet.new.decorate
   end
 
   # GET /snippets/1/edit
@@ -34,6 +34,9 @@ class SnippetsController < ApplicationController
   # POST /snippets.json
   def create
     @snippet = Snippet.new(snippet_params)
+    uri = URI.parse('http://pygments.appspot.com/')
+    request = Net::HTTP.post_form(uri, {'lang' => @snippet.language,'code' => @snippet.plain_code})
+    @snippet.update_attribute(:highlighted_code, request.body)
 
     respond_to do |format|
       if @snippet.save
