@@ -1,0 +1,18 @@
+.page-header
+  = link_to snippets_path, :class => 'btn btn-default' do
+    %span.glyphicon.glyphicon-list-alt
+    Back
+  = link_to edit_snippet_path(@snippet), :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-pencil
+    Edit
+  %h1 Show snippet
+
+%dl.dl-horizontal
+  %dt Name:
+  %dd= @snippet.name
+  %dt Language:
+  %dd= @snippet.language
+  %dt Plain code:
+  %dd= @snippet.plain_code
+  %dt Highlighted code:
+  %dd= @snippet.highlighted_code

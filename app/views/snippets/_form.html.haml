@@ -1,0 +1,11 @@
+= simple_form_for(@snippet) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :name
+    = f.input :language
+    = f.input :plain_code
+    = f.input :highlighted_code
+
+  .form-actions
+    = f.button :submit

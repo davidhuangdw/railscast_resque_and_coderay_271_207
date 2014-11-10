@@ -1,0 +1,28 @@
+.page-header
+  = link_to new_snippet_path, :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-plus
+    New Snippet
+  %h1 Listing snippets
+
+.table-responsive
+  %table.table.table-striped.table-bordered.table-hover
+    %thead
+      %tr
+        %th Name
+        %th Language
+        %th Plain code
+        %th Highlighted code
+        %th
+        %th
+        %th
+
+    %tbody
+      - @snippets.each do |snippet|
+        %tr
+          %td= snippet.name
+          %td= snippet.language
+          %td= snippet.plain_code
+          %td= snippet.highlighted_code
+          %td= link_to 'Show', snippet
+          %td= link_to 'Edit', edit_snippet_path(snippet)
+          %td= link_to 'Destroy', snippet, :data => { confirm: 'Are you sure?' }, :method => :delete
