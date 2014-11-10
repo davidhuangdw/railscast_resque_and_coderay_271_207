@@ -181,6 +181,7 @@ DEPENDENCIES
   binding_of_caller
   bootstrap-generators
   bootstrap-sass
+  coderay
   coffee-rails (~> 4.0.0)
   draper
   font-awesome-rails

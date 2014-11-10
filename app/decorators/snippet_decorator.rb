@@ -12,7 +12,7 @@ class SnippetDecorator < Draper::Decorator
 
   def code
     if highlighted_code.present?
-      h.sanitize highlighted_code
+      h.sanitize highlighted_code, attributes:%w(id class style)
     else
       h.content_tag :pre, plain_code
     end
