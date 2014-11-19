@@ -1,28 +1,73 @@
-== README
+### markdown: redcarpet
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+        # highlight code using CodeRay
+        gem 'coderay'
+        # render:
+        class HighlightCode <  Redcarpet::Render::HTML
+          def block_code(code, language)                    # use 'block_code' hook
+            # CodeRay.scan(code, language).div(line_numbers: :table)
+            CodeRay.scan(code, language).div
+          end
+        end
 
-Things you may want to cover:
+          def markdown
+            @@markdown ||= Redcarpet::Markdown.
+                new(HightlightCode.                             # change renderer to HightlightCode
+                new(prettify:true, hard_wrap:true),fenced_code_blocks:true)
+          end
+        # markdown content
+        ``` ruby
+        ....
+        ```
 
-* Ruby version
+        # render
+          def markdown
+            @@markdown ||= Redcarpet::Markdown.
+                new(Redcarpet::Render::HTML.
+                new(prettify:true, hard_wrap:true),fenced_code_blocks:true)
+          end
+          def bio
+            h.sanitize markdown.render(object.bio) if object.bio.present?       # remember to check presence!!
+          end
 
-* System dependencies
+        gem 'redcarpet'
 
-* Configuration
+### resque
 
-* Database creation
+        # notice: resuqe is based on polling, so slower than beanstalkd
 
-* Database initialization
+        # start workers
+        # sometimes have to restart spring: 'spring stop'
+        rake resque:work QUEUE='*'
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+        # add a job:
+        # Resque.enqueue(YourWorkerClass, arg1, arg2, ...)
+            Resque.enqueue(SnippetHighlighter, @snippet.id)
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+        # add worker(jobs):
+        # app/workers/...rb
+        class SnippetHighlighter
+          @queue = :snippets_queue          # define which queue
+          def self.perform(snippet_id)      # define perform(*args)
+            snippet = Snippet.find(snippet_id)
+            uri = URI.parse('http://pygments.appspot.com/')
+            request = Net::HTTP.post_form(uri, {'lang' => snippet.language,'code' => snippet.plain_code})
+            snippet.update_attribute(:highlighted_code, request.body)
+          end
+        end
+
+        # lib/tasks/resque.rake: add environment
+        require 'resque/tasks'
+        task 'resque:setup' => :environment
+
+        # monitor:
+        # routes
+          mount Resque::Server.new, :at => "/resque"
+        # if want auth:
+        # initializer/resque_auth.rb
+        Resque::Server.use(Rack::Auth::Basic) do |user,password|
+          password == 'secret'
+        end
+
+        gem 'resque'
